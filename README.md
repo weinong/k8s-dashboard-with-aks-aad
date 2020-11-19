@@ -62,6 +62,16 @@ Here is the snippet
         name: oauth2-proxy
 ```
 
+The important flags are:
+
+* `--provider=azure`: you have to use azure provider. :)
+* `--azure-tenant`: your AAD tenant ID
+* `-client-id`: the web app application ID
+* `--client-secret`: the web app secret
+* `--resource`: requests access token for this resource. It has to be `6dae42f8-4368-4678-94ff-3960e28e3630`
+* `--pass-access-token`: passes access token to upstream via X-Forwarded-Access-Token header.
+* `--set-xauthrequest`: along with `--pass-access-token` this adds access token to `X-Auth-Request-Access-Token` header to the response
+
 > Note:
 > This is not a complete guide to setup oauth2-proxy.
 > Always refer to https://oauth2-proxy.github.io/oauth2-proxy/docs/configuration/overview/ for complete configuration
