@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    k8s-app: oauth2-proxy
+  name: oauth2-proxy
+  namespace: kubernetes-dashboard
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: oauth2-proxy
+  template:
+    metadata:
+      labels:
+        k8s-app: oauth2-proxy
+    spec:
+      containers:
+      - args:
+        - --provider=azure
+        - --email-domain=*
+        - --http-address=0.0.0.0:4180
+        - --azure-tenant=<your-AAD-tenant-id>
+        - --client-id=<your-web-app-application-id>
+        - --client-secret=<your-web-app-secret>
+        - --cookie-secret=<cookie secret> # refer to https://oauth2-proxy.github.io/oauth2-proxy/docs/configuration/overview/
+        - --pass-access-token=true
+        - --resource=6dae42f8-4368-4678-94ff-3960e28e3630
+        - --set-xauthrequest=true
+        image: docker.io/weinong/oauth2-proxy:v6.1.1-109-g49746b8
+        imagePullPolicy: Always
+        name: oauth2-proxy
+        ports:
+        - containerPort: 4180
+          protocol: TCP
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    k8s-app: oauth2-proxy
+  name: oauth2-proxy
+  namespace: kubernetes-dashboard
+spec:
+  ports:
+  - name: http
+    port: 4180
+    protocol: TCP
+    targetPort: 4180
+  selector:
+    k8s-app: oauth2-proxy
