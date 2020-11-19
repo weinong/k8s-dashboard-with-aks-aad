@@ -6,6 +6,8 @@ Kubernetes dashboard supports [Authorization header](https://github.com/kubernet
 
 Since AKS introduced [managed AAD](https://docs.microsoft.com/en-us/azure/aks/managed-aad), you no longer need to bring your own AAD applications. While this is great that you don't need to manage the AAD applications and the credential, it brings confusion on what you need to do to setup oauth2-proxy and the ingress.
 
+**NOTE: AKS retires the Kubernetes dashboard from v1.18 and onwards. This guide assumes you are using the upstream Kubernetes dashboard.**
+
 ## Setup
 
 In managed AAD, a pair of cross tenant AAD applications are provided. This can be seen in the kubeconfig. What this means is: kubectl uses a public client `80faf920-1908-4b52-b5ef-a8e7bedfc67a` to log you in to AAD to access an AAD resource `6dae42f8-4368-4678-94ff-3960e28e3630`. Once you complete the device code login, kubectl sends the access token, which is issued to access `6dae42f8-4368-4678-94ff-3960e28e3630`, to api-server. This is akin to how you use azure cli to access Azure. That, too, uses a public client application to request access token to Azure (https://management.azure.com/).
