@@ -37,7 +37,7 @@ To translate this into oauth2 proxy configuration, you need to create a AAD Web 
 
 ### Configure oauth2-proxy
 
-You will need to use `azure` provider and specify `--resource=6dae42f8-4368-4678-94ff-3960e28e3630`. This allows the oauth2-proxy, which uses the web app we just created, to request access to AKS AAD Server App. However, due to [#779](https://github.com/oauth2-proxy/oauth2-proxy/issues/779) and [#913](https://github.com/oauth2-proxy/oauth2-proxy/issues/913), azure provider in oauth2-proxy is broken when `--resource` is used. While we are waiting for [#914](https://github.com/oauth2-proxy/oauth2-proxy/pull/914) to be merged, you can use my pre-built docker image `docker.io/weinong/oauth2-proxy:v6.1.1-109-g49746b8` which has the fix.
+You will need to use `azure` provider and specify `--resource=6dae42f8-4368-4678-94ff-3960e28e3630`. This allows the oauth2-proxy, which uses the web app we just created, to request access to AKS AAD Server App. However, due to [#779](https://github.com/oauth2-proxy/oauth2-proxy/issues/779) and [#913](https://github.com/oauth2-proxy/oauth2-proxy/issues/913), azure provider in oauth2-proxy was broken when `--resource` is used. The fix [#914](https://github.com/oauth2-proxy/oauth2-proxy/pull/914) has been merged into [v7.1.0](https://github.com/oauth2-proxy/oauth2-proxy/releases/tag/v7.1.0)
 
 A sample deployment yaml is provided [oauth2-proxy.yaml](oauth2-proxy.yaml).
 
@@ -48,6 +48,7 @@ Here is the snippet
       containers:
       - args:
         - --provider=azure
+        - --oidc-issuer-url=https://sts.windows.net/<your-AAD-tenant-id>/
         - --email-domain=*
         - --http-address=0.0.0.0:4180
         - --azure-tenant=<your-AAD-tenant-id>
@@ -57,16 +58,16 @@ Here is the snippet
         - --pass-access-token=true
         - --resource=6dae42f8-4368-4678-94ff-3960e28e3630
         - --set-xauthrequest=true
-        image: docker.io/weinong/oauth2-proxy:v6.1.1-109-g49746b8
-        imagePullPolicy: Always
+        image: quay.io/oauth2-proxy/oauth2-proxy:v7.1.2
+        imagePullPolicy: IfNotPresent
         name: oauth2-proxy
 ```
 
 The important flags are:
 
 * `--provider=azure`: you have to use azure provider. :)
-* `--azure-tenant`: your AAD tenant ID
-* `-client-id`: the web app application ID
+* `--oidc-issuer-url`: it configures oauth2-proxy to extract user's email claim from `id_token` rather than querying Graph api.
+* `--client-id`: the web app application ID
 * `--client-secret`: the web app secret
 * `--resource`: requests access token for this resource. It has to be `6dae42f8-4368-4678-94ff-3960e28e3630`
 * `--pass-access-token`: passes access token to upstream via X-Forwarded-Access-Token header.
